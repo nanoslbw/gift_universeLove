@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Happy Women's Day 8/3</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pattaya&family=Quicksand:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./style/style.css" />
+</head>
+
+<body>
+  <!-- Screen 1: Question -->
+  <div class="screen active" id="screen1">
+    <div class="screen-content">
+      <img src="./assets/chubby-tonton.gif" alt="cute characters" class="character-img" />
+      <p class="question-text">Hôm nay biết là ngày gì hong?</p>
+      <div class="btn-group">
+        <button class="intro-btn btn-correct" id="btnCorrect">8/3 hả</button>
+        <button class="intro-btn btn-wrong" id="btnWrong">Hong biết</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 2a: Correct answer -->
+  <div class="screen" id="screen2a">
+    <div class="screen-content">
+      <img src="./assets/uwu.gif" alt="happy cat" class="character-img" />
+      <div class="message-box message-correct">
+        <span>Đúng gòiii sao giỏi thíaaa! Đợi 3 giây nhaaa</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 2b: Wrong answer -->
+  <div class="screen" id="screen2b">
+    <div class="screen-content">
+      <img src="./assets/no.gif" alt="angry cat" class="character-img" />
+      <button class="message-box message-wrong" id="btnRetry">
+        Đồ ngốccc! Ấn vào đây thử lại điii
+      </button>
+    </div>
+  </div>
+
+  <!-- Glowing message overlay -->
+  <div class="glow-message" id="glowMessage">
+    <p>Tường Vi iuu dấu ngày 8/3 zui zẻ</p>
+  </div>
+
+  <!-- Fireworks + Galaxy canvases (hidden until intro completes) -->
+  <canvas id="galaxyCanvas"></canvas>
+  <canvas id="fireworksCanvas"></canvas>
+
+  <!-- Music Player -->
+  <div class="music-player" id="musicPlayer">
+    <button class="toggle-btn" id="toggleBtn" aria-label="Toggle Music Player">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="toggleIcon">
+        <path d="M7 10l5 5 5-5z" />
+      </svg>
+    </button>
+    <button class="play-pause-btn" id="playPauseBtn">
+      <svg id="playIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 5v14l11-7z" />
+      </svg>
+      <svg id="pauseIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: none">
+        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+      </svg>
+    </button>
+    <div class="progress-container">
+      <div class="song-info">Giai điệu tình yêu</div>
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="time-display">
+        <span id="currentTime">0:00</span>
+        <span id="totalTime">0:00</span>
+      </div>
+    </div>
+  </div>
+
+  <audio id="audioPlayer" loop>
+    <source src="./style/nhac.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script src="./style/three.min.js"></script>
+  <script src="./style/script.js"></script>
+</body>
+
+</html>
