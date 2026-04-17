@@ -1,91 +1,90 @@
-<!doctype html>
-<html lang="vi">
-
+<!DOCTYPE html>
+<html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Happy Women's Day 8/3</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Pattaya&family=Quicksand:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./style/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Mimul, My Universe 💫</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { overflow: hidden; background: #000; font-family: Arial, sans-serif; }
+        #galaxyCanvas, #fireworksCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+        #galaxyCanvas { z-index: 1; } #fireworksCanvas { z-index: 2; }
+        .photo-container {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 10; text-align: center;
+        }
+        .photo-container img {
+            width: 250px; height: 250px; object-fit: cover; border-radius: 50%;
+            border: 3px solid #fff; box-shadow: 0 0 30px #ff71ce, 0 0 60px #ff71ce;
+            animation: pulse 2s infinite;
+        }
+        .overlay-text {
+            color: white; font-size: 26px; margin-top: 20px;
+            text-shadow: 0 0 10px #ff71ce, 0 0 20px #ff71ce; font-weight: bold;
+        }
+        .tap-info { color: #ffffff80; font-size: 14px; margin-top: 15px; animation: blink 1.5s infinite; }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 30px #ff71ce, 0 0 60px #ff71ce; }
+            50% { box-shadow: 0 0 50px #ff71ce, 0 0 100px #ff71ce; }
+            100% { box-shadow: 0 0 30px #ff71ce, 0 0 60px #ff71ce; }
+        }
+        @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+    </style>
 </head>
-
 <body>
-  <!-- Screen 1: Question -->
-  <div class="screen active" id="screen1">
-    <div class="screen-content">
-      <img src="./assets/chubby-tonton.gif" alt="cute characters" class="character-img" />
-      <p class="question-text">Hôm nay biết là ngày gì hong?</p>
-      <div class="btn-group">
-        <button class="intro-btn btn-correct" id="btnCorrect">8/3 hả</button>
-        <button class="intro-btn btn-wrong" id="btnWrong">Hong biết</button>
-      </div>
+    <canvas id="galaxyCanvas"></canvas>
+    <canvas id="fireworksCanvas"></canvas>
+    <div class="photo-container">
+        <img src="foto_kalian.jpg" alt="Mimul & Aku">
+        <div class="overlay-text">Mimul, My Universe 💫</div>
+        <div class="tap-info">Tap layar untuk musik ♪</div>
     </div>
-  </div>
-
-  <!-- Screen 2a: Correct answer -->
-  <div class="screen" id="screen2a">
-    <div class="screen-content">
-      <img src="./assets/uwu.gif" alt="happy cat" class="character-img" />
-      <div class="message-box message-correct">
-        <span>Đúng gòiii sao giỏi thíaaa! Đợi 3 giây nhaaa</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Screen 2b: Wrong answer -->
-  <div class="screen" id="screen2b">
-    <div class="screen-content">
-      <img src="./assets/no.gif" alt="angry cat" class="character-img" />
-      <button class="message-box message-wrong" id="btnRetry">
-        Đồ ngốccc! Ấn vào đây thử lại điii
-      </button>
-    </div>
-  </div>
-
-  <!-- Glowing message overlay -->
-  <div class="glow-message" id="glowMessage">
-    <p>Tường Vi iuu dấu ngày 8/3 zui zẻ</p>
-  </div>
-
-  <!-- Fireworks + Galaxy canvases (hidden until intro completes) -->
-  <canvas id="galaxyCanvas"></canvas>
-  <canvas id="fireworksCanvas"></canvas>
-
-  <!-- Music Player -->
-  <div class="music-player" id="musicPlayer">
-    <button class="toggle-btn" id="toggleBtn" aria-label="Toggle Music Player">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="toggleIcon">
-        <path d="M7 10l5 5 5-5z" />
-      </svg>
-    </button>
-    <button class="play-pause-btn" id="playPauseBtn">
-      <svg id="playIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M8 5v14l11-7z" />
-      </svg>
-      <svg id="pauseIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: none">
-        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-      </svg>
-    </button>
-    <div class="progress-container">
-      <div class="song-info">Giai điệu tình yêu</div>
-      <div class="progress-bar" id="progressBar">
-        <div class="progress-fill" id="progressFill"></div>
-      </div>
-      <div class="time-display">
-        <span id="currentTime">0:00</span>
-        <span id="totalTime">0:00</span>
-      </div>
-    </div>
-  </div>
-
-  <audio id="audioPlayer" loop>
-    <source src="./style/nhac.mp3" type="audio/mpeg" />
-  </audio>
-
-  <script src="./style/three.min.js"></script>
-  <script src="./style/script.js"></script>
+    <audio id="bgm" loop><source src="lagu_kalian.mp3" type="audio/mpeg"></audio>
+    <script>
+        const galaxyCanvas = document.getElementById('galaxyCanvas');
+        const galaxyCtx = galaxyCanvas.getContext('2d');
+        galaxyCanvas.width = window.innerWidth; galaxyCanvas.height = window.innerHeight;
+        const stars = [];
+        for (let i = 0; i < 200; i++) {
+            stars.push({ x: Math.random() * galaxyCanvas.width, y: Math.random() * galaxyCanvas.height, radius: Math.random() * 1.5, speed: Math.random() * 0.5 + 0.1 });
+        }
+        function drawGalaxy() {
+            galaxyCtx.clearRect(0, 0, galaxyCanvas.width, galaxyCanvas.height);
+            galaxyCtx.fillStyle = '#ffffff';
+            stars.forEach(star => {
+                galaxyCtx.beginPath(); galaxyCtx.arc(star.x, star.y, star.radius, 0, Math.PI * 2); galaxyCtx.fill();
+                star.y += star.speed; if (star.y > galaxyCanvas.height) { star.y = 0; star.x = Math.random() * galaxyCanvas.width; }
+            });
+            requestAnimationFrame(drawGalaxy);
+        } drawGalaxy();
+        const fwCanvas = document.getElementById('fireworksCanvas');
+        const fwCtx = fwCanvas.getContext('2d');
+        fwCanvas.width = window.innerWidth; fwCanvas.height = window.innerHeight;
+        let fireworks = [];
+        class Firework {
+            constructor(x, y) {
+                this.x = x; this.y = y; this.particles = [];
+                for (let i = 0; i < 50; i++) {
+                    this.particles.push({ x: x, y: y, vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8, alpha: 1, color: `hsl(${Math.random() * 360}, 100%, 50%)` });
+                }
+            }
+            update() { this.particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.alpha -= 0.02; }); this.particles = this.particles.filter(p => p.alpha > 0); }
+            draw() { this.particles.forEach(p => { fwCtx.globalAlpha = p.alpha; fwCtx.fillStyle = p.color; fwCtx.beginPath(); fwCtx.arc(p.x, p.y, 2, 0, Math.PI * 2); fwCtx.fill(); }); }
+        }
+        function animateFireworks() {
+            fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+            fireworks.forEach((fw, index) => { fw.update(); fw.draw(); if (fw.particles.length === 0) fireworks.splice(index, 1); });
+            requestAnimationFrame(animateFireworks);
+        } animateFireworks();
+        const bgm = document.getElementById('bgm');
+        document.body.addEventListener('click', (e) => {
+            bgm.play(); fireworks.push(new Firework(e.clientX, e.clientY));
+            document.querySelector('.tap-info').style.display = 'none';
+        });
+        window.addEventListener('resize', () => {
+            galaxyCanvas.width = fwCanvas.width = window.innerWidth;
+            galaxyCanvas.height = fwCanvas.height = window.innerHeight;
+        });
+    </script>
 </body>
-
 </html>
