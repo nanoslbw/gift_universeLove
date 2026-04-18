@@ -1,144 +1,124 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>You Are My Universe 🌌</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { overflow: hidden; background: #000; }
-        canvas { display: block; }
-        #ui {
-            position: fixed; width: 100%; height: 100%;
-            pointer-events: none; z-index: 100; color: white;
-            font-family: Georgia, serif; text-align: center;
-        }
-        #judul {
-            position: absolute; top: 30px; width: 100%; font-size: 28px;
-            text-shadow: 0 0 25px #fff, 0 0 40px #88ccff;
-        }
-        #info {
-            position: absolute; bottom: 30px; width: 100%; font-size: 14px;
-            font-family: Arial; opacity: 0.8;
-        }
-    </style>
-    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <title>Hadiah Alam Semesta Cinta</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { margin: 0; background: #000; overflow: hidden; }
+    canvas { display: block; }
+    #loading { 
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      color: white; font-family: Arial; font-size: 20px;
+    }
+  </style>
+  <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
 </head>
 <body>
-    <div id="ui">
-        <div id="judul">You Are My Universe 🌌</div>
-        <div id="info">Sentuh untuk musik | Geser untuk putar</div>
-    </div>
+  <div id="loading">Memuat Galaksi Cinta...</div>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-    <audio id="bgm" loop>
-        <source src="lagu_kalian.mp3" type="audio/mpeg">
-    </audio>
-
-    <script>
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-        camera.position.z = 12;
-
-        // BINTANG
-        const starsGeometry = new THREE.BufferGeometry();
-        const posArray = new Float32Array(5000 * 3);
-        for(let i = 0; i < 5000 * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 600;
-        }
-        starsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const stars = new THREE.Points(starsGeometry, new THREE.PointsMaterial({ size: 0.3, color: 0xffffff }));
-        scene.add(stars);
-
-        // GALAKSI BIRU
-        const galaxySphere = new THREE.Mesh(
-            new THREE.SphereGeometry(800, 32, 32),
-            new THREE.MeshBasicMaterial({ color: 0x0a0a2a, side: THREE.BackSide })
-        );
-        scene.add(galaxySphere);
-
-        // FOTO LU - UDAH PAKE NAMA YANG BENER
-        const textureLoader = new THREE.TextureLoader();
-        const images = [
-            'Screenshot_20260413-222119.jpg',
-            'Screenshot_20260415-112014.jpg',
-            'Screenshot_20260416-045337.jpg',
-            'Screenshot_20260416-052453.jpg',
-            'Screenshot_20260416-052457.jpg',
-            'Screenshot_20260418-075359.jpg',
-            'Screenshot_20260418-075421.jpg',
-            'Screenshot_20260418-075429.jpg'
-        ];
-
-        const ring1 = new THREE.Group();
-        const ring2 = new THREE.Group();
-        scene.add(ring1, ring2);
-
-        images.forEach((img, i) => {
-            const material = new THREE.MeshBasicMaterial({
-                color: 0x444488, side: THREE.DoubleSide
-            });
-
-            // Load foto lu. Kalo gagal, tetep ada kotak biru
-            textureLoader.load(img, function(texture) {
-                material.map = texture;
-                material.color.set(0xffffff);
-                material.needsUpdate = true;
-            });
-
-            const plane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
-            const angle = (i / 4) * Math.PI * 2;
-            const radius = 5;
-
-            if (i < 4) {
-                plane.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-                ring1.add(plane);
-            } else {
-                plane.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-                ring2.add(plane);
-            }
-        });
-
-        ring2.rotation.x = Math.PI / 2; // Bikin cincin kedua tegak
-
-        // MUSIK + KONTROL GESER
-        const bgm = document.getElementById('bgm');
-        let isDragging = false;
-        let previousMouseX = 0;
-
-        document.addEventListener('pointerdown', (e) => {
-            isDragging = true;
-            previousMouseX = e.clientX;
-            if (bgm.paused) bgm.play().catch(e => {});
-        });
-        document.addEventListener('pointerup', () => { isDragging = false; });
-        document.addEventListener('pointermove', (e) => {
-            if (!isDragging) return;
-            const deltaX = e.clientX - previousMouseX;
-            ring1.rotation.y += deltaX * 0.005;
-            ring2.rotation.y -= deltaX * 0.005;
-            previousMouseX = e.clientX;
-        });
-
-        // ANIMASI
-        function animate() {
-            requestAnimationFrame(animate);
-            stars.rotation.y += 0.0002;
-            ring1.rotation.y += 0.003;
-            ring2.rotation.y -= 0.003;
-            ring1.children.forEach(p => p.lookAt(camera.position));
-            ring2.children.forEach(p => p.lookAt(camera.position));
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-    </script>
+    const loadingDiv = document.getElementById('loading');
+    
+    // Scene Setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({antialias: true});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    
+    const controls = new OrbitControls(camera, renderer.domElement);
+    camera.position.z = 8;
+    
+    // Bintang-bintang
+    const starsGeometry = new THREE.BufferGeometry();
+    const starsCount = 5000;
+    const posArray = new Float32Array(starsCount * 3);
+    for(let i = 0; i < starsCount * 3; i++) {
+      posArray[i] = (Math.random() - 0.5) * 100;
+    }
+    starsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const starsMaterial = new THREE.PointsMaterial({size: 0.05, color: 0xffffff});
+    const starField = new THREE.Points(starsGeometry, starsMaterial);
+    scene.add(starField);
+    
+    // Foto Utama Tengah
+    const textureLoader = new THREE.TextureLoader();
+    const mainTexture = textureLoader.load('./foto_kalian.jpg');
+    const mainSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(1.5, 64, 64),
+      new THREE.MeshBasicMaterial({ map: mainTexture })
+    );
+    scene.add(mainSphere);
+    
+    // 8 FOTO LU YANG MUTEER
+    const photoFiles = [
+      'Screenshot_20260418-075359.jpg',
+      'Screenshot_20260418-075421.jpg',
+      'Screenshot_20260418-075429.jpg',
+      'Screenshot_20260416-052457.jpg',
+      'Screenshot_20260416-052453.jpg',
+      'Screenshot_20260416-045337.jpg',
+      'Screenshot_20260415-112014.jpg',
+      'Screenshot_20260413-222119.jpg'
+    ];
+    const photoTextures = photoFiles.map(file => textureLoader.load(`./${file}`));
+    
+    const ring1 = new THREE.Group();
+    const ring2 = new THREE.Group();
+    scene.add(ring1, ring2);
+    
+    photoTextures.forEach((texture, i) => {
+      const photo = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.2, 1.2),
+        new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide, transparent: true })
+      );
+      
+      const angle = (i / 4) * Math.PI * 2;
+      const radius = i < 4? 3.5 : 5;
+      const group = i < 4? ring1 : ring2;
+      
+      photo.position.x = Math.cos(angle) * radius;
+      photo.position.z = Math.sin(angle) * radius;
+      photo.lookAt(0, 0, 0);
+      
+      group.add(photo);
+    });
+    
+    // Musik
+    const audio = new Audio('./lagu_kalian.mp3');
+    audio.loop = true;
+    document.body.addEventListener('click', () => audio.play());
+    
+    // Animasi
+    function animate() {
+      requestAnimationFrame(animate);
+      mainSphere.rotation.y += 0.002;
+      ring1.rotation.y += 0.005;
+      ring2.rotation.y -= 0.003;
+      starField.rotation.y += 0.0002;
+      controls.update();
+      renderer.render(scene, camera);
+      loadingDiv.style.display = 'none';
+    }
+    
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+    
+    animate();
+  </script>
 </body>
 </html>
