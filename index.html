@@ -54,7 +54,7 @@
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.toneMappingExposure = 1.5; // NAH INI BIKIN TERANG
+        renderer.toneMappingExposure = 1.5;
         document.body.appendChild(renderer.domElement);
 
         const controls = new OrbitControls(camera, renderer.domElement);
@@ -63,13 +63,11 @@
         controls.maxDistance = 15;
         camera.position.z = 9;
 
-        // CAHAYA DITAMBAH BIAR TERANG
-        scene.add(new THREE.AmbientLight(0xffffff, 1.2)); // Cahaya sekitar naik
-        const sunLight = new THREE.DirectionalLight(0xffffff, 2.5); // Matahari makin terang
+        scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+        const sunLight = new THREE.DirectionalLight(0xffffff, 2.5);
         sunLight.position.set(5, 3, 5);
         scene.add(sunLight);
 
-        // Bintang-bintang lebih terang
         const starsGeometry = new THREE.BufferGeometry();
         const starsCount = 8000;
         const posArray = new Float32Array(starsCount * 3);
@@ -79,7 +77,6 @@
         starsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
         scene.add(new THREE.Points(starsGeometry, new THREE.PointsMaterial({size: 0.02, color: 0xffffff})));
 
-        // BULAN DI TENGAH - DIBIKIN LEBIH TERANG 🌙
         const moonGeometry = new THREE.SphereGeometry(1.5, 64, 64);
         const moonTexture = new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/moon_1024.jpg');
         const moonBump = new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/moon_1024.jpg');
@@ -87,25 +84,24 @@
             map: moonTexture,
             bumpMap: moonBump,
             bumpScale: 0.05,
-            emissive: 0x666688, // Emissive dinaikin = bulan bercahaya
-            emissiveIntensity: 0.8 // Makin gede makin terang
+            emissive: 0x666688,
+            emissiveIntensity: 0.8
         }));
         scene.add(moon);
 
-        // Cahaya dari bulan DITAMBAH
-        const moonGlow = new THREE.PointLight(0xaaaaff, 3, 40); // Intensity 3, jarak 40
+        const moonGlow = new THREE.PointLight(0xaaaaff, 3, 40);
         moon.add(moonGlow);
 
-        // FOTO-FOTO DI PINGGIR - DIBIKIN TERANG JUGA
+        // INI YANG UDAH GUA BENERIN SESUAI REPO LU
         const images = [
-            'Screenshot_20250812_100324.png',
-            'Screenshot_20250812_100330.png',
-            'Screenshot_20250812_100336.png',
-            'Screenshot_20250812_100343.png',
-            'Screenshot_20250812_100348.png',
-            'Screenshot_20250812_100355.png',
-            'Screenshot_20250812_100400.png',
-            'Screenshot_20250812_100407.png'
+            'Screenshot_20260413-222119.jpg',
+            'Screenshot_20260415-112014.jpg',
+            'Screenshot_20260416-045337.jpg',
+            'Screenshot_20260416-052453.jpg',
+            'Screenshot_20260416-052457.jpg',
+            'Screenshot_20260418-075359.jpg',
+            'Screenshot_20260418-075421.jpg',
+            'Screenshot_20260418-075429.jpg'
         ];
 
         const photoGroup = new THREE.Group();
@@ -115,13 +111,13 @@
 
         images.forEach((img, i) => {
             const texture = loader.load(img);
-            const material = new THREE.MeshStandardMaterial({ // Ganti ke Standard biar kena cahaya
+            const material = new THREE.MeshStandardMaterial({
                 map: texture, 
                 side: THREE.DoubleSide,
-                emissive: 0x222222, // Fotonya ikut nyala dikit
+                emissive: 0x222222,
                 emissiveIntensity: 0.3
             });
-            const geometry = new THREE.PlaneGeometry(1.7, 1.7); // Agak digedein dikit
+            const geometry = new THREE.PlaneGeometry(1.7, 1.7);
             const plane = new THREE.Mesh(geometry, material);
             
             const angle = (i / images.length) * Math.PI * 2;
@@ -133,7 +129,6 @@
             photoGroup.add(plane);
         });
 
-        // Musik
         const bgm = document.getElementById('bgm');
         document.body.addEventListener('click', () => {
             if (bgm.paused) {
@@ -142,7 +137,6 @@
             }
         });
 
-        // Animasi
         function animate() {
             requestAnimationFrame(animate);
             moon.rotation.y += 0.001;
