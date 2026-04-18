@@ -1,149 +1,153 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>You Are My Universe 🌌</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You're My Bright Moon 🌙</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { overflow: hidden; background: #000; }
+        body { margin: 0; overflow: hidden; background: #000000; }
         canvas { display: block; }
-        #ui {
-            position: fixed; width: 100%; height: 100%;
-            pointer-events: none; z-index: 100; color: white;
-            font-family: Georgia, serif; text-align: center;
-        }
         #judul {
-            position: absolute; top: 30px; width: 100%; font-size: 28px;
-            text-shadow: 0 0 25px #fff, 0 0 40px #88ccff;
-            animation: glow 2s ease-in-out infinite alternate;
+            position: absolute;
+            top: 25px;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            font-family: 'Georgia', serif;
+            font-size: 24px;
+            text-shadow: 0 0 20px #ffffff, 0 0 30px #aaddff;
+            z-index: 100;
         }
         #info {
-            position: absolute; bottom: 30px; width: 100%; font-size: 14px;
-            font-family: Arial; opacity: 0.8; pointer-events: none;
-        }
-        @keyframes glow {
-            from { text-shadow: 0 0 20px #fff, 0 0 30px #88ccff; }
-            to { text-shadow: 0 0 30px #fff, 0 0 50px #88ccff; }
+            position: absolute;
+            bottom: 25px;
+            width: 100%;
+            text-align: center;
+            color: #ddd;
+            font-family: Arial;
+            font-size: 15px;
+            text-shadow: 0 0 10px #000;
+            z-index: 100;
         }
     </style>
-    <!-- CUMA PAKE THREE.JS DOANG. GA ADA TAMBAHAN LAIN -->
-    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
 </head>
 <body>
-    <div id="ui">
-        <div id="judul">You Are My Universe 🌌</div>
-        <div id="info">Sentuh untuk musik | Geser untuk putar</div>
-    </div>
-
+    <div id="judul">You Are My Moon 🌙</div>
+    <div id="info">Sentuh layar untuk musik | Geser untuk memutar galaksi</div>
     <audio id="bgm" loop>
         <source src="lagu_kalian.mp3" type="audio/mpeg">
     </audio>
 
-    <script>
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x000000, 0.00025);
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.toneMappingExposure = 2.0;
+        renderer.toneMappingExposure = 1.5; // NAH INI BIKIN TERANG
         document.body.appendChild(renderer.domElement);
 
-        camera.position.set(0, 2, 12);
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.minDistance = 5;
+        controls.maxDistance = 15;
+        camera.position.z = 9;
 
-        // CAHAYA
-        scene.add(new THREE.AmbientLight(0x404040, 2));
-        scene.add(new THREE.DirectionalLight(0xffffff, 2));
+        // CAHAYA DITAMBAH BIAR TERANG
+        scene.add(new THREE.AmbientLight(0xffffff, 1.2)); // Cahaya sekitar naik
+        const sunLight = new THREE.DirectionalLight(0xffffff, 2.5); // Matahari makin terang
+        sunLight.position.set(5, 3, 5);
+        scene.add(sunLight);
 
-        // GALAKSI BIRU GELAP
-        const galaxySphere = new THREE.Mesh(
-            new THREE.SphereGeometry(800, 32, 32),
-            new THREE.MeshBasicMaterial({ color: 0x0a0a2a, side: THREE.BackSide })
-        );
-        scene.add(galaxySphere);
-
-        // BINTANG 5000 BIJI
+        // Bintang-bintang lebih terang
         const starsGeometry = new THREE.BufferGeometry();
-        const posArray = new Float32Array(5000 * 3);
-        for(let i = 0; i < 5000 * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 600;
+        const starsCount = 8000;
+        const posArray = new Float32Array(starsCount * 3);
+        for(let i = 0; i < starsCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 2000;
         }
         starsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const stars = new THREE.Points(starsGeometry, new THREE.PointsMaterial({ size: 0.3, color: 0xffffff }));
-        scene.add(stars);
+        scene.add(new THREE.Points(starsGeometry, new THREE.PointsMaterial({size: 0.02, color: 0xffffff})));
 
-        // BULAN
-        const moon = new THREE.Mesh(
-            new THREE.SphereGeometry(1.8, 32, 32),
-            new THREE.MeshStandardMaterial({ color: 0xaaaaaa, emissive: 0x6677aa, emissiveIntensity: 1.5 })
-        );
+        // BULAN DI TENGAH - DIBIKIN LEBIH TERANG 🌙
+        const moonGeometry = new THREE.SphereGeometry(1.5, 64, 64);
+        const moonTexture = new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/moon_1024.jpg');
+        const moonBump = new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/moon_1024.jpg');
+        const moon = new THREE.Mesh(moonGeometry, new THREE.MeshStandardMaterial({ 
+            map: moonTexture,
+            bumpMap: moonBump,
+            bumpScale: 0.05,
+            emissive: 0x666688, // Emissive dinaikin = bulan bercahaya
+            emissiveIntensity: 0.8 // Makin gede makin terang
+        }));
         scene.add(moon);
-        moon.add(new THREE.PointLight(0xaaaaff, 6, 50));
 
-        // FOTO LU
-        const textureLoader = new THREE.TextureLoader();
+        // Cahaya dari bulan DITAMBAH
+        const moonGlow = new THREE.PointLight(0xaaaaff, 3, 40); // Intensity 3, jarak 40
+        moon.add(moonGlow);
+
+        // FOTO-FOTO DI PINGGIR - DIBIKIN TERANG JUGA
         const images = [
-            'Screenshot_20260413-222119.jpg',
-            'Screenshot_20260415-112014.jpg',
-            'Screenshot_20260416-045337.jpg',
-            'Screenshot_20260416-052453.jpg',
-            'Screenshot_20260416-052457.jpg',
-            'Screenshot_20260418-075359.jpg',
-            'Screenshot_20260418-075421.jpg',
-            'Screenshot_20260418-075429.jpg'
+            'Screenshot_20250812_100324.png',
+            'Screenshot_20250812_100330.png',
+            'Screenshot_20250812_100336.png',
+            'Screenshot_20250812_100343.png',
+            'Screenshot_20250812_100348.png',
+            'Screenshot_20250812_100355.png',
+            'Screenshot_20250812_100400.png',
+            'Screenshot_20250812_100407.png'
         ];
 
         const photoGroup = new THREE.Group();
         scene.add(photoGroup);
+        const loader = new THREE.TextureLoader();
+        const radius = 4.5;
 
         images.forEach((img, i) => {
-            const material = new THREE.MeshStandardMaterial({
-                color: 0x444488, side: THREE.DoubleSide, emissive: 0x222244, emissiveIntensity: 0.5
+            const texture = loader.load(img);
+            const material = new THREE.MeshStandardMaterial({ // Ganti ke Standard biar kena cahaya
+                map: texture, 
+                side: THREE.DoubleSide,
+                emissive: 0x222222, // Fotonya ikut nyala dikit
+                emissiveIntensity: 0.3
             });
-            // Kalo foto gagal load, tetep muncul kotak biru
-            textureLoader.load(img, function(texture) {
-                material.map = texture;
-                material.color.set(0xffffff);
-                material.needsUpdate = true;
-            });
-            const plane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
+            const geometry = new THREE.PlaneGeometry(1.7, 1.7); // Agak digedein dikit
+            const plane = new THREE.Mesh(geometry, material);
+            
             const angle = (i / images.length) * Math.PI * 2;
-            plane.position.x = Math.cos(angle) * 5;
-            plane.position.z = Math.sin(angle) * 5;
-            plane.position.y = Math.sin(i * 0.8) * 1.5;
+            plane.position.x = Math.cos(angle) * radius;
+            plane.position.z = Math.sin(angle) * radius;
+            plane.position.y = Math.sin(angle * 2) * 0.3;
+            
+            plane.lookAt(0, 0, 0);
             photoGroup.add(plane);
         });
 
-        // MUSIK + KONTROL GESER MANUAL
+        // Musik
         const bgm = document.getElementById('bgm');
-        let isDragging = false;
-        let previousMousePosition = { x: 0, y: 0 };
-
-        document.addEventListener('pointerdown', (e) => {
-            isDragging = true;
-            if (bgm.paused) bgm.play().catch(e => {});
-        });
-        document.addEventListener('pointerup', () => { isDragging = false; });
-        document.addEventListener('pointermove', (e) => {
-            if (!isDragging) return;
-            const deltaX = e.clientX - previousMousePosition.x;
-            photoGroup.rotation.y += deltaX * 0.005;
-            moon.rotation.y += deltaX * 0.005;
-            previousMousePosition = { x: e.clientX, y: e.clientY };
+        document.body.addEventListener('click', () => {
+            if (bgm.paused) {
+                bgm.play();
+                document.getElementById('info').style.opacity = '0.3';
+            }
         });
 
-        // ANIMASI
+        // Animasi
         function animate() {
             requestAnimationFrame(animate);
-            const elapsed = Date.now() * 0.0001;
-
-            galaxySphere.rotation.y = elapsed;
             moon.rotation.y += 0.001;
-            photoGroup.rotation.y += 0.0015;
-            stars.rotation.y = elapsed * 2;
-
-            photoGroup.children.forEach(p => p.lookAt(0, 0, 0));
+            photoGroup.rotation.y += 0.003;
+            controls.update();
             renderer.render(scene, camera);
         }
         animate();
