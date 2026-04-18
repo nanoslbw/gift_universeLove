@@ -20,21 +20,20 @@
         }
         #info {
             position: absolute; bottom: 30px; width: 100%; font-size: 14px;
-            font-family: Arial; opacity: 0.8;
+            font-family: Arial; opacity: 0.8; pointer-events: none;
         }
         @keyframes glow {
             from { text-shadow: 0 0 20px #fff, 0 0 30px #88ccff; }
             to { text-shadow: 0 0 30px #fff, 0 0 50px #88ccff; }
         }
     </style>
-
+    <!-- CUMA PAKE THREE.JS DOANG. GA ADA TAMBAHAN LAIN -->
     <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-    <script src="https://unpkg.com/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
     <div id="ui">
         <div id="judul">You Are My Universe 🌌</div>
-        <div id="info">Sentuh untuk musik | Pinch 2 jari untuk zoom | Geser untuk putar</div>
+        <div id="info">Sentuh untuk musik | Geser untuk putar</div>
     </div>
 
     <audio id="bgm" loop>
@@ -51,28 +50,20 @@
         renderer.toneMappingExposure = 2.0;
         document.body.appendChild(renderer.domElement);
 
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableZoom = true;
-        controls.minDistance = 2.5;
-        controls.maxDistance = 40;
-        controls.autoRotate = true;
-        controls.autoRotateSpeed = 0.2;
         camera.position.set(0, 2, 12);
 
         // CAHAYA
         scene.add(new THREE.AmbientLight(0x404040, 2));
         scene.add(new THREE.DirectionalLight(0xffffff, 2));
 
-        // GALAKSI
-        const galaxyGeometry = new THREE.SphereGeometry(800, 32, 32);
-        const galaxyMaterial = new THREE.MeshBasicMaterial({
-            color: 0x0a0a2a,
-            side: THREE.BackSide
-        });
-        const galaxySphere = new THREE.Mesh(galaxyGeometry, galaxyMaterial);
+        // GALAKSI BIRU GELAP
+        const galaxySphere = new THREE.Mesh(
+            new THREE.SphereGeometry(800, 32, 32),
+            new THREE.MeshBasicMaterial({ color: 0x0a0a2a, side: THREE.BackSide })
+        );
         scene.add(galaxySphere);
 
-        // BINTANG
+        // BINTANG 5000 BIJI
         const starsGeometry = new THREE.BufferGeometry();
         const posArray = new Float32Array(5000 * 3);
         for(let i = 0; i < 5000 * 3; i++) {
@@ -108,18 +99,14 @@
 
         images.forEach((img, i) => {
             const material = new THREE.MeshStandardMaterial({
-                color: 0x444488,
-                side: THREE.DoubleSide,
-                emissive: 0x222244,
-                emissiveIntensity: 0.5
+                color: 0x444488, side: THREE.DoubleSide, emissive: 0x222244, emissiveIntensity: 0.5
             });
-
+            // Kalo foto gagal load, tetep muncul kotak biru
             textureLoader.load(img, function(texture) {
                 material.map = texture;
                 material.color.set(0xffffff);
                 material.needsUpdate = true;
             });
-
             const plane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
             const angle = (i / images.length) * Math.PI * 2;
             plane.position.x = Math.cos(angle) * 5;
@@ -128,10 +115,22 @@
             photoGroup.add(plane);
         });
 
-        // MUSIK
+        // MUSIK + KONTROL GESER MANUAL
         const bgm = document.getElementById('bgm');
-        document.body.addEventListener('pointerdown', () => {
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+
+        document.addEventListener('pointerdown', (e) => {
+            isDragging = true;
             if (bgm.paused) bgm.play().catch(e => {});
+        });
+        document.addEventListener('pointerup', () => { isDragging = false; });
+        document.addEventListener('pointermove', (e) => {
+            if (!isDragging) return;
+            const deltaX = e.clientX - previousMousePosition.x;
+            photoGroup.rotation.y += deltaX * 0.005;
+            moon.rotation.y += deltaX * 0.005;
+            previousMousePosition = { x: e.clientX, y: e.clientY };
         });
 
         // ANIMASI
@@ -140,4 +139,20 @@
             const elapsed = Date.now() * 0.0001;
 
             galaxySphere.rotation.y = elapsed;
-            moon.rotation.y = elapsed *
+            moon.rotation.y += 0.001;
+            photoGroup.rotation.y += 0.0015;
+            stars.rotation.y = elapsed * 2;
+
+            photoGroup.children.forEach(p => p.lookAt(0, 0, 0));
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
