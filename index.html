@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>You Are My Universe 🌙</title>
+    <title>You Are My Universe 🌌</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -58,7 +58,7 @@
 </head>
 <body>
     <div id="ui">
-        <div id="judul">You Are My Universe 🌙</div>
+        <div id="judul">You Are My Universe 🌌</div>
         <div id="info">Sentuh untuk musik | Pinch 2 jari untuk zoom | Geser untuk putar</div>
     </div>
     
@@ -70,44 +70,165 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        // SETUP DASAR
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x000000, 0.00025); // Efek kabut galaksi
+        scene.fog = new THREE.FogExp2(0x000000, 0.00025);
         
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.8; // SUPER TERANG
+        renderer.toneMappingExposure = 2.0; // NAIKIN LAGI BIAR GALAKSI KELIATAN
         document.body.appendChild(renderer.domElement);
 
-        // KONTROL - ZOOM LANCAR
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
         controls.enableZoom = true;
         controls.zoomSpeed = 1.5;
-        controls.minDistance = 2.5; // Bisa deket banget
-        controls.maxDistance = 30; // Bisa jauh banget
+        controls.minDistance = 2.5;
+        controls.maxDistance = 40; // DIBIKIN JAUH BIAR GALAKSI KELIATAN UTUH
         controls.enablePan = false;
         controls.autoRotate = true;
-        controls.autoRotateSpeed = 0.3;
-        camera.position.set(0, 2, 10);
+        controls.autoRotateSpeed = 0.2;
+        camera.position.set(0, 2, 12); // MUNDURIN DIKIT
 
-        // CAHAYA CINEMATIC
+        // CAHAYA
         scene.add(new THREE.AmbientLight(0x404040, 2));
-        const hemiLight = new THREE.HemisphereLight(0x4477ff, 0x002244, 1);
+        const hemiLight = new THREE.HemisphereLight(0x4477ff, 0x002244, 1.5);
         scene.add(hemiLight);
         const dirLight = new THREE.DirectionalLight(0xffffff, 2);
         dirLight.position.set(5, 10, 5);
         scene.add(dirLight);
 
-        // BINTANG LAYER 1 - BINTANG JAUH KECIL
-        const starsGeometry1 = new THREE.BufferGeometry();
-        const starsCount1 = 10000;
-        const posArray1 = new Float32Array(starsCount1 * 3);
-        for(let i = 0; i < starsCount1 * 3; i++) {
-            posArray1[i] = (Math.random() - 0.5) * 1500;
+        // BACKGROUND GALAKSI ANDROMEDA - INI YANG LU MAU 🔥
+        const textureLoader = new THREE.TextureLoader();
+        const galaxyTexture = textureLoader.load('https://upload.wikimedia.org/wikipedia/commons/9/98/Andromeda_Galaxy_%28with_h-alpha%29.jpg');
+        const galaxyGeometry = new THREE.SphereGeometry(800, 64, 64); // BOLA GEDE BANGET
+        const galaxyMaterial = new THREE.MeshBasicMaterial({
+            map: galaxyTexture,
+            side: THREE.BackSide // DIBALIK BIAR KITA DI DALEMNYA
+        });
+        const galaxySphere = new THREE.Mesh(galaxyGeometry, galaxyMaterial);
+        scene.add(galaxySphere);
+
+        // BINTANG TAMBAHAN BIAR RAME
+        const starsGeometry = new THREE.BufferGeometry();
+        const starsCount = 8000;
+        const posArray = new Float32Array(starsCount * 3);
+        for(let i = 0; i < starsCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 600;
         }
-        starsGeometry1.setAttribute('position', new THREE.BufferAttribute(posArray1, 3));
+        starsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const stars = new THREE.Points(starsGeometry, new THREE.PointsMaterial({
+            size: 0.2, color: 0xffffff, transparent: true, opacity: 0.9
+        }));
+        scene.add(stars);
+
+        // BULAN UTAMA DI DEPAN GALAKSI
+        const moonGeometry = new THREE.SphereGeometry(1.8, 128, 128);
+        const moonTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/moon_1024.jpg');
+        
+        const moonMaterial = new THREE.MeshStandardMaterial({ 
+            map: moonTexture,
+            bumpMap: moonTexture,
+            bumpScale: 0.1,
+            emissive: 0x6677aa,
+            emissiveIntensity: 1.5, // DITERANGIN LAGI
+            metalness: 0.1,
+            roughness: 0.8
+        });
+        const moon = new THREE.Mesh(moonGeometry, moonMaterial);
+        scene.add(moon);
+
+        const glow1 = new THREE.PointLight(0xaaaaff, 6, 50);
+        const glow2 = new THREE.PointLight(0x8888ff, 4, 30);
+        moon.add(glow1, glow2);
+
+        // FOTO-FOTO MENGELILINGI BULAN
+        const images = [
+            'Screenshot_20260413-222119.jpg',
+            'Screenshot_20260415-112014.jpg',
+            'Screenshot_20260416-045337.jpg',
+            'Screenshot_20260416-052453.jpg',
+            'Screenshot_20260416-052457.jpg',
+            'Screenshot_20260418-075359.jpg',
+            'Screenshot_20260418-075421.jpg',
+            'Screenshot_20260418-075429.jpg'
+        ];
+
+        const photoGroup = new THREE.Group();
+        scene.add(photoGroup);
+        const radius = 5;
+
+        images.forEach((img, i) => {
+            const texture = textureLoader.load(img);
+            texture.colorSpace = THREE.SRGBColorSpace;
+            
+            const material = new THREE.MeshStandardMaterial({
+                map: texture,
+                side: THREE.DoubleSide,
+                emissive: 0x222244,
+                emissiveIntensity: 0.5,
+                metalness: 0.2,
+                roughness: 0.3
+            });
+            
+            const geometry = new THREE.PlaneGeometry(2, 2);
+            const plane = new THREE.Mesh(geometry, material);
+            
+            const angle = (i / images.length) * Math.PI * 2;
+            const spiralY = Math.sin(i * 0.8) * 1.5;
+            plane.position.x = Math.cos(angle) * radius;
+            plane.position.z = Math.sin(angle) * radius;
+            plane.position.y = spiralY;
+            
+            plane.lookAt(0, 0, 0);
+            photoGroup.add(plane);
+
+            const photoLight = new THREE.PointLight(0x4477aa, 0.8, 5);
+            plane.add(photoLight);
+        });
+
+        // MUSIK
+        const bgm = document.getElementById('bgm');
+        const info = document.getElementById('info');
+        let musicStarted = false;
+        
+        document.body.addEventListener('pointerdown', () => {
+            if (!musicStarted) {
+                bgm.play().catch(e => console.log('Autoplay blocked'));
+                musicStarted = true;
+                info.style.opacity = '0.3';
+            }
+        });
+
+        // ANIMASI
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsed = clock.getElapsedTime();
+            
+            galaxySphere.rotation.y = elapsed * 0.01; // GALAKSI MUTER PELAN
+            moon.rotation.y = elapsed * 0.1;
+            photoGroup.rotation.y = elapsed * 0.15;
+            stars.rotation.y = elapsed * 0.02;
+            
+            photoGroup.children.forEach((photo, i) => {
+                photo.position.y = Math.sin(elapsed * 0.5 + i) * 0.3;
+                photo.lookAt(0, 0, 0);
+            });
+            
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
