@@ -2,119 +2,143 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>For Mimul, My Universe 🌌</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>You Are My Universe 🌌</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { overflow: hidden; background: #000; }
-        #c { width: 100vw; height: 100vh; display: block; }
-     .tap-info {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            color: #fff; font-family: Arial; font-size: 14px; text-shadow: 0 0 10px #ff71ce;
-            animation: blink 1.5s infinite; z-index: 10;
+        canvas { display: block; }
+        #ui {
+            position: fixed; width: 100%; height: 100%;
+            pointer-events: none; z-index: 100; color: white;
+            font-family: Georgia, serif; text-align: center;
         }
-        @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        #judul {
+            position: absolute; top: 30px; width: 100%; font-size: 28px;
+            text-shadow: 0 0 25px #fff, 0 0 40px #88ccff;
+        }
+        #info {
+            position: absolute; bottom: 30px; width: 100%; font-size: 14px;
+            font-family: Arial; opacity: 0.8;
+        }
     </style>
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/"
-        }
-    }
-    </script>
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 </head>
 <body>
-    <canvas id="c"></canvas>
-    <div class="tap-info">Sentuh layar & geser buat muterin universe kita ✨</div>
-    <audio id="musik" src="./lagu_kalian.mp3" loop></audio>
-    
-    <script type="module">
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    <div id="ui">
+        <div id="judul">You Are My Universe 🌌</div>
+        <div id="info">Sentuh untuk musik | Geser untuk putar</div>
+    </div>
 
+    <audio id="bgm" loop>
+        <source src="lagu_kalian.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true });
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+        camera.position.z = 12;
 
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.autoRotate = true;
-        controls.autoRotateSpeed = 0.5;
-        camera.position.z = 8;
-
+        // BINTANG
         const starsGeometry = new THREE.BufferGeometry();
-        const starsCount = 5000;
-        const posArray = new Float32Array(starsCount * 3);
-        for (let i = 0; i < starsCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 100;
+        const posArray = new Float32Array(5000 * 3);
+        for(let i = 0; i < 5000 * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 600;
         }
         starsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const starsMaterial = new THREE.PointsMaterial({ size: 0.05, color: 0xffffff });
-        const starField = new THREE.Points(starsGeometry, starsMaterial);
-        scene.add(starField);
+        const stars = new THREE.Points(starsGeometry, new THREE.PointsMaterial({ size: 0.3, color: 0xffffff }));
+        scene.add(stars);
 
-        const textureLoader = new THREE.TextureLoader();
-        const mainTexture = textureLoader.load('./foto_kalian.jpg');
-        const mainSphere = new THREE.Mesh(
-            new THREE.SphereGeometry(1.5, 64, 64),
-            new THREE.MeshBasicMaterial({ map: mainTexture })
+        // GALAKSI BIRU
+        const galaxySphere = new THREE.Mesh(
+            new THREE.SphereGeometry(800, 32, 32),
+            new THREE.MeshBasicMaterial({ color: 0x0a0a2a, side: THREE.BackSide })
         );
-        scene.add(mainSphere);
+        scene.add(galaxySphere);
 
-        const photoTextures = [];
-        for (let i = 1; i <= 8; i++) {
-            photoTextures.push(textureLoader.load(`./foto${i}.jpg`));
-        }
+        // FOTO LU - UDAH PAKE NAMA YANG BENER
+        const textureLoader = new THREE.TextureLoader();
+        const images = [
+            'Screenshot_20260413-222119.jpg',
+            'Screenshot_20260415-112014.jpg',
+            'Screenshot_20260416-045337.jpg',
+            'Screenshot_20260416-052453.jpg',
+            'Screenshot_20260416-052457.jpg',
+            'Screenshot_20260418-075359.jpg',
+            'Screenshot_20260418-075421.jpg',
+            'Screenshot_20260418-075429.jpg'
+        ];
 
         const ring1 = new THREE.Group();
         const ring2 = new THREE.Group();
         scene.add(ring1, ring2);
 
-        photoTextures.forEach((texture, i) => {
-            const photo = new THREE.Mesh(
-                new THREE.PlaneGeometry(1, 1),
-                new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide, transparent: true })
-            );
+        images.forEach((img, i) => {
+            const material = new THREE.MeshBasicMaterial({
+                color: 0x444488, side: THREE.DoubleSide
+            });
+
+            // Load foto lu. Kalo gagal, tetep ada kotak biru
+            textureLoader.load(img, function(texture) {
+                material.map = texture;
+                material.color.set(0xffffff);
+                material.needsUpdate = true;
+            });
+
+            const plane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
             const angle = (i / 4) * Math.PI * 2;
-            const radius = 3;
+            const radius = 5;
+
             if (i < 4) {
-                photo.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-                ring1.add(photo);
+                plane.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+                ring1.add(plane);
             } else {
-                photo.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-                photo.rotation.y = Math.PI;
-                ring2.add(photo);
+                plane.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+                ring2.add(plane);
             }
         });
-        
-        ring2.rotation.x = Math.PI / 2;
+
+        ring2.rotation.x = Math.PI / 2; // Bikin cincin kedua tegak
+
+        // MUSIK + KONTROL GESER
+        const bgm = document.getElementById('bgm');
+        let isDragging = false;
+        let previousMouseX = 0;
+
+        document.addEventListener('pointerdown', (e) => {
+            isDragging = true;
+            previousMouseX = e.clientX;
+            if (bgm.paused) bgm.play().catch(e => {});
+        });
+        document.addEventListener('pointerup', () => { isDragging = false; });
+        document.addEventListener('pointermove', (e) => {
+            if (!isDragging) return;
+            const deltaX = e.clientX - previousMouseX;
+            ring1.rotation.y += deltaX * 0.005;
+            ring2.rotation.y -= deltaX * 0.005;
+            previousMouseX = e.clientX;
+        });
+
+        // ANIMASI
+        function animate() {
+            requestAnimationFrame(animate);
+            stars.rotation.y += 0.0002;
+            ring1.rotation.y += 0.003;
+            ring2.rotation.y -= 0.003;
+            ring1.children.forEach(p => p.lookAt(camera.position));
+            ring2.children.forEach(p => p.lookAt(camera.position));
+            renderer.render(scene, camera);
+        }
+        animate();
 
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
-
-        document.body.addEventListener('click', () => {
-            const musik = document.getElementById('musik');
-            if (musik.paused) musik.play();
-        }, { once: true });
-
-        function animate() {
-            requestAnimationFrame(animate);
-            starField.rotation.y += 0.0002;
-            mainSphere.rotation.y += 0.002;
-            ring1.rotation.y += 0.005;
-            ring2.rotation.y -= 0.005;
-            ring1.children.forEach(p => p.lookAt(camera.position));
-            ring2.children.forEach(p => p.lookAt(camera.position));
-            controls.update();
-            renderer.render(scene, camera);
-        }
-        animate();
     </script>
 </body>
 </html>
