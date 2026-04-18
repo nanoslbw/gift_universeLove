@@ -1,33 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>You're My Bright Moon 🌙</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>You Are My Universe 🌙</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000000; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            overflow: hidden; 
+            background: #000000;
+            font-family: 'Georgia', serif;
+            touch-action: none;
+        }
         canvas { display: block; }
+        #ui {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
         #judul {
             position: absolute;
-            top: 25px;
+            top: 30px;
             width: 100%;
             text-align: center;
             color: #fff;
-            font-family: 'Georgia', serif;
-            font-size: 24px;
-            text-shadow: 0 0 20px #ffffff, 0 0 30px #aaddff;
-            z-index: 100;
+            font-size: 28px;
+            text-shadow: 0 0 25px #ffffff, 0 0 40px #88ccff;
+            animation: glow 2s ease-in-out infinite alternate;
         }
         #info {
             position: absolute;
-            bottom: 25px;
+            bottom: 30px;
             width: 100%;
             text-align: center;
-            color: #ddd;
+            color: #ccc;
+            font-size: 14px;
             font-family: Arial;
-            font-size: 15px;
             text-shadow: 0 0 10px #000;
-            z-index: 100;
+            opacity: 0.8;
+            transition: opacity 0.5s;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 20px #ffffff, 0 0 30px #88ccff; }
+            to { text-shadow: 0 0 30px #ffffff, 0 0 50px #88ccff; }
         }
     </style>
     <script type="importmap">
@@ -40,8 +57,11 @@
     </script>
 </head>
 <body>
-    <div id="judul">You Are My Moon 🌙</div>
-    <div id="info">Sentuh layar untuk musik | Geser untuk memutar galaksi</div>
+    <div id="ui">
+        <div id="judul">You Are My Universe 🌙</div>
+        <div id="info">Sentuh untuk musik | Pinch 2 jari untuk zoom | Geser untuk putar</div>
+    </div>
+    
     <audio id="bgm" loop>
         <source src="lagu_kalian.mp3" type="audio/mpeg">
     </audio>
@@ -50,107 +70,44 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+        // SETUP DASAR
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        scene.fog = new THREE.FogExp2(0x000000, 0.00025); // Efek kabut galaksi
+        
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.toneMappingExposure = 1.5;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.8; // SUPER TERANG
         document.body.appendChild(renderer.domElement);
 
+        // KONTROL - ZOOM LANCAR
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.minDistance = 5;
-        controls.maxDistance = 15;
-        camera.position.z = 9;
+        controls.dampingFactor = 0.05;
+        controls.enableZoom = true;
+        controls.zoomSpeed = 1.5;
+        controls.minDistance = 2.5; // Bisa deket banget
+        controls.maxDistance = 30; // Bisa jauh banget
+        controls.enablePan = false;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.3;
+        camera.position.set(0, 2, 10);
 
-        scene.add(new THREE.AmbientLight(0xffffff, 1.2));
-        const sunLight = new THREE.DirectionalLight(0xffffff, 2.5);
-        sunLight.position.set(5, 3, 5);
-        scene.add(sunLight);
+        // CAHAYA CINEMATIC
+        scene.add(new THREE.AmbientLight(0x404040, 2));
+        const hemiLight = new THREE.HemisphereLight(0x4477ff, 0x002244, 1);
+        scene.add(hemiLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+        dirLight.position.set(5, 10, 5);
+        scene.add(dirLight);
 
-        const starsGeometry = new THREE.BufferGeometry();
-        const starsCount = 8000;
-        const posArray = new Float32Array(starsCount * 3);
-        for(let i = 0; i < starsCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 2000;
+        // BINTANG LAYER 1 - BINTANG JAUH KECIL
+        const starsGeometry1 = new THREE.BufferGeometry();
+        const starsCount1 = 10000;
+        const posArray1 = new Float32Array(starsCount1 * 3);
+        for(let i = 0; i < starsCount1 * 3; i++) {
+            posArray1[i] = (Math.random() - 0.5) * 1500;
         }
-        starsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        scene.add(new THREE.Points(starsGeometry, new THREE.PointsMaterial({size: 0.02, color: 0xffffff})));
-
-        const moonGeometry = new THREE.SphereGeometry(1.5, 64, 64);
-        const moonTexture = new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/moon_1024.jpg');
-        const moonBump = new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/moon_1024.jpg');
-        const moon = new THREE.Mesh(moonGeometry, new THREE.MeshStandardMaterial({ 
-            map: moonTexture,
-            bumpMap: moonBump,
-            bumpScale: 0.05,
-            emissive: 0x666688,
-            emissiveIntensity: 0.8
-        }));
-        scene.add(moon);
-
-        const moonGlow = new THREE.PointLight(0xaaaaff, 3, 40);
-        moon.add(moonGlow);
-
-        // INI YANG UDAH GUA BENERIN SESUAI REPO LU
-        const images = [
-            'Screenshot_20260413-222119.jpg',
-            'Screenshot_20260415-112014.jpg',
-            'Screenshot_20260416-045337.jpg',
-            'Screenshot_20260416-052453.jpg',
-            'Screenshot_20260416-052457.jpg',
-            'Screenshot_20260418-075359.jpg',
-            'Screenshot_20260418-075421.jpg',
-            'Screenshot_20260418-075429.jpg'
-        ];
-
-        const photoGroup = new THREE.Group();
-        scene.add(photoGroup);
-        const loader = new THREE.TextureLoader();
-        const radius = 4.5;
-
-        images.forEach((img, i) => {
-            const texture = loader.load(img);
-            const material = new THREE.MeshStandardMaterial({
-                map: texture, 
-                side: THREE.DoubleSide,
-                emissive: 0x222222,
-                emissiveIntensity: 0.3
-            });
-            const geometry = new THREE.PlaneGeometry(1.7, 1.7);
-            const plane = new THREE.Mesh(geometry, material);
-            
-            const angle = (i / images.length) * Math.PI * 2;
-            plane.position.x = Math.cos(angle) * radius;
-            plane.position.z = Math.sin(angle) * radius;
-            plane.position.y = Math.sin(angle * 2) * 0.3;
-            
-            plane.lookAt(0, 0, 0);
-            photoGroup.add(plane);
-        });
-
-        const bgm = document.getElementById('bgm');
-        document.body.addEventListener('click', () => {
-            if (bgm.paused) {
-                bgm.play();
-                document.getElementById('info').style.opacity = '0.3';
-            }
-        });
-
-        function animate() {
-            requestAnimationFrame(animate);
-            moon.rotation.y += 0.001;
-            photoGroup.rotation.y += 0.003;
-            controls.update();
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-    </script>
-</body>
-</html>
+        starsGeometry1.setAttribute('position', new THREE.BufferAttribute(posArray1, 3));
