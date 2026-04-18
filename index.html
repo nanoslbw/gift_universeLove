@@ -3,88 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>For Mimul, My Universe 💫</title>
+    <title>For Mimul, My Universe 🌌</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { overflow: hidden; background: #000; font-family: Arial, sans-serif; }
-        #galaxyCanvas, #fireworksCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
-        #galaxyCanvas { z-index: 1; } #fireworksCanvas { z-index: 2; }
-        .photo-container {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            z-index: 10; text-align: center;
-        }
-        .photo-container img {
-            width: 250px; height: 250px; object-fit: cover; border-radius: 50%;
-            border: 3px solid #fff; box-shadow: 0 0 30px #ff71ce, 0 0 60px #ff71ce;
-            animation: pulse 2s infinite;
-        }
-        .overlay-text {
-            color: white; font-size: 26px; margin-top: 20px;
-            text-shadow: 0 0 10px #ff71ce, 0 0 20px #ff71ce; font-weight: bold;
-        }
-        .tap-info { color: #ffffff80; font-size: 14px; margin-top: 15px; animation: blink 1.5s infinite; }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 30px #ff71ce, 0 0 60px #ff71ce; }
-            50% { box-shadow: 0 0 50px #ff71ce, 0 0 100px #ff71ce; }
-            100% { box-shadow: 0 0 30px #ff71ce, 0 0 60px #ff71ce; }
+        body { overflow: hidden; background: #000; }
+        #c { width: 100vw; height: 100vh; display: block; }
+     .tap-info {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            color: #fff; font-family: Arial; font-size: 14px; text-shadow: 0 0 10px #ff71ce;
+            animation: blink 1.5s infinite; z-index: 10;
         }
         @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
     </style>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/"
+        }
+    }
+    </script>
 </head>
 <body>
-    <canvas id="galaxyCanvas"></canvas>
-    <canvas id="fireworksCanvas"></canvas>
-    <div class="photo-container">
-        <img src="foto_kalian.jpg" alt="Mimul & Aku">
-        <div class="overlay-text">Mimul, My Universe 💫</div>
-        <div class="tap-info">Tap layar untuk musik ♪</div>
-    </div>
-    <audio id="bgm" loop><source src="lagu_kalian.mp3" type="audio/mpeg"></audio>
-    <script>
-        const galaxyCanvas = document.getElementById('galaxyCanvas');
-        const galaxyCtx = galaxyCanvas.getContext('2d');
-        galaxyCanvas.width = window.innerWidth; galaxyCanvas.height = window.innerHeight;
-        const stars = [];
-        for (let i = 0; i < 200; i++) {
-            stars.push({ x: Math.random() * galaxyCanvas.width, y: Math.random() * galaxyCanvas.height, radius: Math.random() * 1.5, speed: Math.random() * 0.5 + 0.1 });
+    <canvas id="c"></canvas>
+    <div class="tap-info">Sentuh layar & geser buat muterin universe kita ✨</div>
+    <audio id="musik" src="./lagu_kalian.mp3" loop></audio>
+    
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.5;
+        camera.position.z = 8;
+
+        const starsGeometry = new THREE.BufferGeometry();
+        const starsCount = 5000;
+        const posArray = new Float32Array(starsCount * 3);
+        for (let i = 0; i < starsCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 100;
         }
-        function drawGalaxy() {
-            galaxyCtx.clearRect(0, 0, galaxyCanvas.width, galaxyCanvas.height);
-            galaxyCtx.fillStyle = '#ffffff';
-            stars.forEach(star => {
-                galaxyCtx.beginPath(); galaxyCtx.arc(star.x, star.y, star.radius, 0, Math.PI * 2); galaxyCtx.fill();
-                star.y += star.speed; if (star.y > galaxyCanvas.height) { star.y = 0; star.x = Math.random() * galaxyCanvas.width; }
-            });
-            requestAnimationFrame(drawGalaxy);
-        } drawGalaxy();
-        const fwCanvas = document.getElementById('fireworksCanvas');
-        const fwCtx = fwCanvas.getContext('2d');
-        fwCanvas.width = window.innerWidth; fwCanvas.height = window.innerHeight;
-        let fireworks = [];
-        class Firework {
-            constructor(x, y) {
-                this.x = x; this.y = y; this.particles = [];
-                for (let i = 0; i < 50; i++) {
-                    this.particles.push({ x: x, y: y, vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8, alpha: 1, color: `hsl(${Math.random() * 360}, 100%, 50%)` });
-                }
+        starsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const starsMaterial = new THREE.PointsMaterial({ size: 0.05, color: 0xffffff });
+        const starField = new THREE.Points(starsGeometry, starsMaterial);
+        scene.add(starField);
+
+        const textureLoader = new THREE.TextureLoader();
+        const mainTexture = textureLoader.load('./foto_kalian.jpg');
+        const mainSphere = new THREE.Mesh(
+            new THREE.SphereGeometry(1.5, 64, 64),
+            new THREE.MeshBasicMaterial({ map: mainTexture })
+        );
+        scene.add(mainSphere);
+
+        const photoTextures = [];
+        for (let i = 1; i <= 8; i++) {
+            photoTextures.push(textureLoader.load(`./foto${i}.jpg`));
+        }
+
+        const ring1 = new THREE.Group();
+        const ring2 = new THREE.Group();
+        scene.add(ring1, ring2);
+
+        photoTextures.forEach((texture, i) => {
+            const photo = new THREE.Mesh(
+                new THREE.PlaneGeometry(1, 1),
+                new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide, transparent: true })
+            );
+            const angle = (i / 4) * Math.PI * 2;
+            const radius = 3;
+            if (i < 4) {
+                photo.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+                ring1.add(photo);
+            } else {
+                photo.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+                photo.rotation.y = Math.PI;
+                ring2.add(photo);
             }
-            update() { this.particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.alpha -= 0.02; }); this.particles = this.particles.filter(p => p.alpha > 0); }
-            draw() { this.particles.forEach(p => { fwCtx.globalAlpha = p.alpha; fwCtx.fillStyle = p.color; fwCtx.beginPath(); fwCtx.arc(p.x, p.y, 2, 0, Math.PI * 2); fwCtx.fill(); }); }
-        }
-        function animateFireworks() {
-            fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
-            fireworks.forEach((fw, index) => { fw.update(); fw.draw(); if (fw.particles.length === 0) fireworks.splice(index, 1); });
-            requestAnimationFrame(animateFireworks);
-        } animateFireworks();
-        const bgm = document.getElementById('bgm');
-        document.body.addEventListener('click', (e) => {
-            bgm.play(); fireworks.push(new Firework(e.clientX, e.clientY));
-            document.querySelector('.tap-info').style.display = 'none';
         });
+        
+        ring2.rotation.x = Math.PI / 2;
+
         window.addEventListener('resize', () => {
-            galaxyCanvas.width = fwCanvas.width = window.innerWidth;
-            galaxyCanvas.height = fwCanvas.height = window.innerHeight;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
         });
+
+        document.body.addEventListener('click', () => {
+            const musik = document.getElementById('musik');
+            if (musik.paused) musik.play();
+        }, { once: true });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            starField.rotation.y += 0.0002;
+            mainSphere.rotation.y += 0.002;
+            ring1.rotation.y += 0.005;
+            ring2.rotation.y -= 0.005;
+            ring1.children.forEach(p => p.lookAt(camera.position));
+            ring2.children.forEach(p => p.lookAt(camera.position));
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
     </script>
 </body>
 </html>
