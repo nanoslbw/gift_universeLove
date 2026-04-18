@@ -1,124 +1,162 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Hadiah Alam Semesta Cinta</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { margin: 0; background: #000; overflow: hidden; }
-    canvas { display: block; }
-    #loading { 
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      color: white; font-family: Arial; font-size: 20px;
-    }
-  </style>
-  <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-      }
-    }
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You're My Bright Moon 🌙</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000000; }
+        canvas { display: block; }
+        #judul {
+            position: absolute;
+            top: 25px;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            font-family: 'Georgia', serif;
+            font-size: 24px;
+            text-shadow: 0 0 20px #ffffff, 0 0 30px #aaddff;
+            z-index: 100;
+        }
+        #info {
+            position: absolute;
+            bottom: 25px;
+            width: 100%;
+            text-align: center;
+            color: #ddd;
+            font-family: Arial;
+            font-size: 15px;
+            text-shadow: 0 0 10px #000;
+            z-index: 100;
+        }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
 </head>
 <body>
-  <div id="loading">Memuat Galaksi Cinta...</div>
-  <script type="module">
-    import * as THREE from 'three';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    <div id="judul">You Are My Moon 🌙</div>
+    <div id="info">Sentuh layar untuk musik | Geser untuk memutar galaksi</div>
+    <audio id="bgm" loop>
+        <source src="lagu_kalian.mp3" type="audio/mpeg">
+    </audio>
 
-    const loadingDiv = document.getElementById('loading');
-    
-    // Scene Setup
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({antialias: true});
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-    
-    const controls = new OrbitControls(camera, renderer.domElement);
-    camera.position.z = 8;
-    
-    // Bintang-bintang
-    const starsGeometry = new THREE.BufferGeometry();
-    const starsCount = 5000;
-    const posArray = new Float32Array(starsCount * 3);
-    for(let i = 0; i < starsCount * 3; i++) {
-      posArray[i] = (Math.random() - 0.5) * 100;
-    }
-    starsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-    const starsMaterial = new THREE.PointsMaterial({size: 0.05, color: 0xffffff});
-    const starField = new THREE.Points(starsGeometry, starsMaterial);
-    scene.add(starField);
-    
-    // Foto Utama Tengah
-    const textureLoader = new THREE.TextureLoader();
-    const mainTexture = textureLoader.load('./foto_kalian.jpg');
-    const mainSphere = new THREE.Mesh(
-      new THREE.SphereGeometry(1.5, 64, 64),
-      new THREE.MeshBasicMaterial({ map: mainTexture })
-    );
-    scene.add(mainSphere);
-    
-    // 8 FOTO LU YANG MUTEER
-    const photoFiles = [
-      'Screenshot_20260418-075359.jpg',
-      'Screenshot_20260418-075421.jpg',
-      'Screenshot_20260418-075429.jpg',
-      'Screenshot_20260416-052457.jpg',
-      'Screenshot_20260416-052453.jpg',
-      'Screenshot_20260416-045337.jpg',
-      'Screenshot_20260415-112014.jpg',
-      'Screenshot_20260413-222119.jpg'
-    ];
-    const photoTextures = photoFiles.map(file => textureLoader.load(`./${file}`));
-    
-    const ring1 = new THREE.Group();
-    const ring2 = new THREE.Group();
-    scene.add(ring1, ring2);
-    
-    photoTextures.forEach((texture, i) => {
-      const photo = new THREE.Mesh(
-        new THREE.PlaneGeometry(1.2, 1.2),
-        new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide, transparent: true })
-      );
-      
-      const angle = (i / 4) * Math.PI * 2;
-      const radius = i < 4? 3.5 : 5;
-      const group = i < 4? ring1 : ring2;
-      
-      photo.position.x = Math.cos(angle) * radius;
-      photo.position.z = Math.sin(angle) * radius;
-      photo.lookAt(0, 0, 0);
-      
-      group.add(photo);
-    });
-    
-    // Musik
-    const audio = new Audio('./lagu_kalian.mp3');
-    audio.loop = true;
-    document.body.addEventListener('click', () => audio.play());
-    
-    // Animasi
-    function animate() {
-      requestAnimationFrame(animate);
-      mainSphere.rotation.y += 0.002;
-      ring1.rotation.y += 0.005;
-      ring2.rotation.y -= 0.003;
-      starField.rotation.y += 0.0002;
-      controls.update();
-      renderer.render(scene, camera);
-      loadingDiv.style.display = 'none';
-    }
-    
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-    
-    animate();
-  </script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.toneMappingExposure = 1.5; // NAH INI BIKIN TERANG
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.minDistance = 5;
+        controls.maxDistance = 15;
+        camera.position.z = 9;
+
+        // CAHAYA DITAMBAH BIAR TERANG
+        scene.add(new THREE.AmbientLight(0xffffff, 1.2)); // Cahaya sekitar naik
+        const sunLight = new THREE.DirectionalLight(0xffffff, 2.5); // Matahari makin terang
+        sunLight.position.set(5, 3, 5);
+        scene.add(sunLight);
+
+        // Bintang-bintang lebih terang
+        const starsGeometry = new THREE.BufferGeometry();
+        const starsCount = 8000;
+        const posArray = new Float32Array(starsCount * 3);
+        for(let i = 0; i < starsCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 2000;
+        }
+        starsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        scene.add(new THREE.Points(starsGeometry, new THREE.PointsMaterial({size: 0.02, color: 0xffffff})));
+
+        // BULAN DI TENGAH - DIBIKIN LEBIH TERANG 🌙
+        const moonGeometry = new THREE.SphereGeometry(1.5, 64, 64);
+        const moonTexture = new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/moon_1024.jpg');
+        const moonBump = new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/moon_1024.jpg');
+        const moon = new THREE.Mesh(moonGeometry, new THREE.MeshStandardMaterial({ 
+            map: moonTexture,
+            bumpMap: moonBump,
+            bumpScale: 0.05,
+            emissive: 0x666688, // Emissive dinaikin = bulan bercahaya
+            emissiveIntensity: 0.8 // Makin gede makin terang
+        }));
+        scene.add(moon);
+
+        // Cahaya dari bulan DITAMBAH
+        const moonGlow = new THREE.PointLight(0xaaaaff, 3, 40); // Intensity 3, jarak 40
+        moon.add(moonGlow);
+
+        // FOTO-FOTO DI PINGGIR - DIBIKIN TERANG JUGA
+        const images = [
+            'Screenshot_20250812_100324.png',
+            'Screenshot_20250812_100330.png',
+            'Screenshot_20250812_100336.png',
+            'Screenshot_20250812_100343.png',
+            'Screenshot_20250812_100348.png',
+            'Screenshot_20250812_100355.png',
+            'Screenshot_20250812_100400.png',
+            'Screenshot_20250812_100407.png'
+        ];
+
+        const photoGroup = new THREE.Group();
+        scene.add(photoGroup);
+        const loader = new THREE.TextureLoader();
+        const radius = 4.5;
+
+        images.forEach((img, i) => {
+            const texture = loader.load(img);
+            const material = new THREE.MeshStandardMaterial({ // Ganti ke Standard biar kena cahaya
+                map: texture, 
+                side: THREE.DoubleSide,
+                emissive: 0x222222, // Fotonya ikut nyala dikit
+                emissiveIntensity: 0.3
+            });
+            const geometry = new THREE.PlaneGeometry(1.7, 1.7); // Agak digedein dikit
+            const plane = new THREE.Mesh(geometry, material);
+            
+            const angle = (i / images.length) * Math.PI * 2;
+            plane.position.x = Math.cos(angle) * radius;
+            plane.position.z = Math.sin(angle) * radius;
+            plane.position.y = Math.sin(angle * 2) * 0.3;
+            
+            plane.lookAt(0, 0, 0);
+            photoGroup.add(plane);
+        });
+
+        // Musik
+        const bgm = document.getElementById('bgm');
+        document.body.addEventListener('click', () => {
+            if (bgm.paused) {
+                bgm.play();
+                document.getElementById('info').style.opacity = '0.3';
+            }
+        });
+
+        // Animasi
+        function animate() {
+            requestAnimationFrame(animate);
+            moon.rotation.y += 0.001;
+            photoGroup.rotation.y += 0.003;
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
 </body>
 </html>
